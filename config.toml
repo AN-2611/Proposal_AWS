@@ -1,5 +1,5 @@
 baseURL = "https://lehoangthai.github.io/proposal/"
-relativeURLs = true
+relativeURLs = false
 canonifyURLs = true
 
 # Change the default theme to be use when building the site with Hugo
