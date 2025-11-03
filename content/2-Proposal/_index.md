@@ -9,7 +9,7 @@ pre: " <b> 1. </b> "
 # AWS APPLICATION LOAD BALANCER
 ## DEPLOYMENT OF ADVANCED FEATURES OF AWS APPLICATION LOAD BALANCER
 
-![ALB](/images/2-Proposal/arc.jpeg)
+![ALB](/images/arc.jpeg)
 
 ### 1. Executive Summary
 This report presents an assessment and proposal for implementing a highly available and secure web system architecture on the AWS platform, deployed in the us-east-1 region.  

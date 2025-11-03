@@ -10,7 +10,7 @@ pre: " <b> 1. </b> "
 # AWS APPLICATION LOAD BALANCER
 ## TRIỂN KHAI CÁC TÍNH NĂNG NÂNG CAO CỦA AWS APPLICATION LOAD BALANCER 
 
-![ALB](/images/2-Proposal/arc.jpeg)
+![ALB](/images/arc.jpeg)
 
 ### 1. Tóm tắt điều hành  
 Báo cáo này trình bày đánh giá và đề xuất triển khai một kiến trúc hệ thống web có độ sẵn sàng cao và bảo mật tốt trên nền tảng AWS, được triển khai tại khu vực us-east-1. Kiến trúc bao gồm các thành phần: Route 53, Certificate Manager (ACM), Application Load Balancer (ALB), nhóm Auto Scaling, CloudWatch, S3 và các máy chủ EC2 chạy trong private subnet trên hai Availability Zone.
