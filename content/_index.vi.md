@@ -23,7 +23,7 @@ chapter: false
 
 &emsp; **Thời gian thực tập:** Từ ngày 16/09/2025 đến ngày 16/12/2025
 
-![Ảnh đại diện của bạn](static/images/selfie/hoang_thai.jpg)
+![Ảnh đại diện của bạn](/static/images/selfie/hoang_thai.jpg)
 
 
 ### Nội dung báo cáo
