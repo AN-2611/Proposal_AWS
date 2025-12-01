@@ -1,4 +1,4 @@
-# Hugo Learn Theme
+# Hugo Learn Themes
 
 This repository contains a theme for [Hugo](https://gohugo.io/), based on great [Grav Learn Theme](https://learn.getgrav.org/).
 
