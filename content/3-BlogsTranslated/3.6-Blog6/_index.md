@@ -1,9 +1,9 @@
 ---
-title: "Blog 6"
+title: "Blog3"
 date: "2025-09-08"
 weight: 1
 chapter: false
-pre: " <b> 3.6. </b> "
+pre: " <b> 3.3 </b> "
 ---
 
 # Powering AI-Driven Security with the Open Cybersecurity Schema Framework

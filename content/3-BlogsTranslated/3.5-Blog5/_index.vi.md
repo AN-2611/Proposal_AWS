@@ -1,9 +1,9 @@
 ---
-title: "Blog 5"
+title: "Blog 2"
 date: "2025-09-08"
 weight: 1
 chapter: false
-pre: " <b> 3.5. </b> "
+pre: " <b> 3.2. </b> "
 ---
 
 # Cách một nhà phát triển hạ tầng tận dụng chứng chỉ AI để thúc đẩy đổi mới

@@ -1,9 +1,9 @@
 ---
-title: "Blog 5"
+title: "Blog 2"
 date: "2025-09-08"
 weight: 1
 chapter: false
-pre: " <b> 3.5. </b> "
+pre: " <b> 3.2. </b> "
 ---
 
 # How an infrastructure developer leverages AI certification to drive innovation

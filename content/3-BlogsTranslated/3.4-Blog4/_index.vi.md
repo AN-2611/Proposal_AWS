@@ -1,9 +1,9 @@
 ---
-title: "Blog 4"
+title: "Blog 1"
 date: "2025-09-08"
 weight: 1
 chapter: false
-pre: " <b> 3.4. </b> "
+pre: " <b> 3.1. </b> "
 ---
 
 # Cải thiện khả năng giám sát mạng với các chỉ số mới của AWS Outposts rack

@@ -1,9 +1,9 @@
 ---
-title: "Blog 6"
+title: "Blog 3"
 date: "2025-09-08"
 weight: 1
 chapter: false
-pre: " <b> 3.6. </b> "
+pre: " <b> 3.3. </b> "
 ---
 
 # Tăng cường bảo mật dựa trên AI với Khung Lược Đồ An Ninh Mạng Mở
