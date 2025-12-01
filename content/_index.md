@@ -23,7 +23,11 @@ chapter: false
 
 &emsp; **Internship Duration:** From September 16, 2025 to December 16, 2025
 
+<<<<<<< HEAD
 ![Your profile photo](/images/hoangthai.png)
+=======
+![Your profile photo](/images/selfie/hoangthai.jpg)
+>>>>>>> e7361d447480792848de89fc87f2d84bfece0a30
 
 
 

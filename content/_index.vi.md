@@ -23,7 +23,12 @@ chapter: false
 
 &emsp; **Thời gian thực tập:** Từ ngày 16/09/2025 đến ngày 16/12/2025
 
+<<<<<<< HEAD
 ![Your profile photo](/images/hoangthai.png)
+=======
+![Ảnh đại diện của bạn](/images/selfie/hoangthai.jpg)
+
+>>>>>>> e7361d447480792848de89fc87f2d84bfece0a30
 
 ### Nội dung báo cáo
 
