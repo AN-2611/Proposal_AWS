@@ -17,14 +17,13 @@ chapter: false
 
 &emsp; **Ngành:** An toàn Thông tin
 
-&emsp; **Lớp:** AWS082025 &emsp; **Công ty thực tập:** Công ty TNHH Amazon Web Services Vietnam
+&emsp; **Lớp:** 22DATA1 &emsp; **Công ty thực tập:** Công ty TNHH Amazon Web Services Vietnam
 
 &emsp; **Vị trí thực tập:** FCJ Cloud Intern
 
 &emsp; **Thời gian thực tập:** Từ ngày 16/09/2025 đến ngày 16/12/2025
 
-![Ảnh đại diện của bạn](/static/images/selfie/hoangthai.jpg)
-
+![Your profile photo](/images/hoangthai.png)
 
 ### Nội dung báo cáo
 
