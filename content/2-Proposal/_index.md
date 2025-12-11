@@ -5,6 +5,7 @@ weight: 2
 chapter: false
 pre: " <b> 2. </b> "
 ---
+![image architech](/images/Proposal/Containerized-and-Scalable-Web-Application.drawio.png)
 
 ## 1. EXECUTIVE SUMMARY
 
