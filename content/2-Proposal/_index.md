@@ -6,162 +6,729 @@ chapter: false
 pre: " <b> 2. </b> "
 ---
 
-# AWS APPLICATION LOAD BALANCER
-## DEPLOYMENT OF ADVANCED FEATURES OF AWS APPLICATION LOAD BALANCER
+## 1. EXECUTIVE SUMMARY
 
-![ALB](/images/arc.jpeg)
+### 1.1 Project Overview
 
-### 1. Executive Summary
-This report presents an assessment and proposal for implementing a highly available and secure web system architecture on the AWS platform, deployed in the us-east-1 region.  
-The architecture includes the following components: Route 53, Certificate Manager (ACM), Application Load Balancer (ALB), Auto Scaling Group, CloudWatch, S3, and EC2 instances running in private subnets across two Availability Zones.
+NutriChat is an intelligent nutrition assistant web application that helps users build a healthy diet based on personal needs. The application uses the Claude 3 Haiku AI model through the AWS Bedrock service to analyze nutrition data and provide personalized recommendations based on physical condition, health goals, and eating habits.
 
-The goal of this architecture is to build a stable, scalable, cost-efficient, and secure system that supports Web, API, and WebSocket services in a production environment.
+The system is deployed entirely on AWS with a modern serverless architecture, optimizing costs, increasing scalability, and reducing operational burden. The architecture adheres to the AWS Well-Architected Framework principles: security, performance, reliability, cost optimization, and operational excellence.
 
-### 2. Problem Statement
-#### *Current Problems*
-In many traditional web systems or on-premises infrastructures, the following issues commonly occur:
+### 1.2 Main Objectives
 
-- High investment and maintenance costs: Hardware, storage devices, network systems, and technical personnel require significant upfront costs. In addition, maintenance, upgrades, and periodic replacement lead to a higher total cost of ownership (TCO).
+- Build an automated nutrition consultation system.
+- Personalize recommendations based on profile, allergies, and health goals
+- Deploy on AWS with high availability and auto-scaling
+- Ensure user data security.
+- Optimize operational costs.
 
-- Manual scalability: When traffic surges unexpectedly, scaling infrastructure must be done manually, which is time-consuming and may interrupt services. Many systems over-provision resources for safety, leading to waste.
+### 1.3 Achievements
 
-- Low fault tolerance: A single hardware failure, configuration error, or power outage can disrupt the entire backend. Redundancy and self-healing mechanisms are difficult to implement in traditional physical infrastructures.
+**100% Success** - The project has been deployed with all features working stably:
 
-- Limited monitoring and troubleshooting: On-premises systems often lack centralized observability tools. Detecting incidents, tracking performance, or analyzing logs requires manual steps, slowing down incident response and resolution.
+- **Infrastructure**: AWS resources managed with Terraform
+- **Authentication**: AWS Cognito with JWT, email verification
+- **AI Integration**: Claude 3 Haiku with streaming responses
+- **Database**: PostgreSQL Multi-AZ with automated backups
+- **Frontend**: Vue.js responsive UI on CloudFront CDN
+- **Monitoring**: CloudWatch with logs, metrics, alerts
 
-- Heavy security and compliance workload: Maintaining firewalls, patch management, access control, and data backups must be handled manually, which is error-prone and resource-intensive.
+**Production URL**: https://d13s9jdjslcf4.cloudfront.net
 
-These limitations result in slower software development cycles, higher operational costs, lower reliability, and insufficient flexibility to meet the rapid changes demanded by modern web applications.
 
-#### *Solution*
-The proposed solution is to deploy the web application using a **3-tier architecture** on AWS, consisting of:
-- **Presentation Layer:** Users access the system through Route 53 and ALB via HTTPS (secured by ACM certificates).
-- **Application Layer:** Runs on EC2 instances in private subnets, divided into three service groups: Web, API, and WebSocket.
-- **Data & Monitoring Layer:** Stores logs in S3, monitors resources via CloudWatch, and sends alerts through SNS.
 
-Auto Scaling Groups automatically adjust the number of EC2 instances based on load, while CloudWatch Alarms monitor CPU, memory, and network usage to send alerts when thresholds are exceeded.
+---
 
-#### *Benefits and Return on Investment (ROI)*
-**Technical benefits:**
-- Ensures 99.9% uptime through multi-AZ design.  
-- Reduces latency and improves response time using ALB and optimized routing.  
-- Increases security by isolating the backend in private subnets.  
-- Automatically scales resources with changing workloads, reducing idle costs.  
-- Centralized monitoring and proactive alerting.
+## 2. PROBLEM STATEMENT
 
-**Investment effectiveness (ROI):**
-- Reduces operational costs by 20–40% compared to fixed infrastructure.  
-- Minimizes downtime → improves user experience → increases revenue.  
-- Reusable and easily extensible infrastructure for future projects.
+### 2.1 What'"'"'s the Problem?
 
-### 3. Solution Architecture
-#### *AWS Services Used*
-- *Route 53*: Manages DNS, routes domain traffic, supports health checks.  
-- *ACM (AWS Certificate Manager)*: Issues and automatically renews SSL/TLS certificates for HTTPS.  
-- *VPC (Virtual Private Cloud)*: Provides an isolated network environment for the system.  
-- *NAT Gateway*: Allows EC2 instances in private subnets to access the internet for updates without exposing public IPs.  
-- *IGW*: Connects the VPC to the Internet.  
-- *EC2 Instances (App, API, WebSocket)*: Backend compute servers running in private subnets.  
-- *Auto Scaling Group*: Automatically adjusts the number of EC2 instances based on workload.  
-- *Application Load Balancer (ALB)*: Distributes traffic among EC2 instances for Web/API/WebSocket.  
-- *Amazon CloudWatch*: Monitors performance metrics, collects logs, and triggers alarms when incidents occur.  
-- *Amazon SNS*: Sends alert notifications via email/SMS.  
-- *S3 (Simple Storage Service)*: Stores ALB access logs.
+#### Current Issues in Nutrition Consultation
 
-#### *Component Design*
-The backend system consists of three main layers:
+**1. High Consultation Costs**
+- One-on-one nutrition consultation with experts
+- Not everyone can afford the fees
+- Long waiting times for appointments (1-2 weeks)
 
-1. **Network Layer:** Responsible for connectivity, security, and routing between Internet users and internal VPC resources.
-   - Key components:
-     - *Amazon Route 53*: Provides global DNS, resolving the application domain to the ALB’s IP address in the us-east-1 region. It ensures fast, reliable access and supports cross-region load balancing in future expansions.
-     - *Internet Gateway (IGW)*: Allows Internet traffic to enter and leave the VPC, acting as the main gateway between AWS Cloud and end users.
-     - *Application Load Balancer (ALB)*: Serves as the single entry point for all external traffic. ALB distributes requests to EC2 backend groups (Web, API, WebSocket) based on request type or path. Integrated with *AWS Certificate Manager (ACM)* for HTTPS encryption, ensuring secure data transmission.
-     - *NAT Gateway*: Located in the Public Subnet, it allows EC2 instances in Private Subnets to access the Internet (e.g., for software updates or API calls) without exposing public IPs, enhancing security.
+**2. Lack of Personalization**
+- Online nutrition information is generic
+- Does not consider personal allergies and preferences
+- Does not match individual health goals
 
-2. **Application Layer:** Focused on business logic processing and service delivery through EC2 instances.
-   - Components:
-     - *EC2 Instances (Web, API, WebSocket)*: Located in Private Subnets and inaccessible directly from the Internet. Each EC2 group has its own Security Group allowing traffic only from ALB or NAT Gateway.
-     - *Auto Scaling Group (ASG)*: Automatically increases or decreases EC2 instance count based on real load (e.g., CPU > 70%), ensuring performance, reducing costs, and improving reliability.
+**3. Difficult to Access 24/7**
+- Experts only work during business hours
+- No immediate support when needed
+- Difficult to track progress continuously
 
-3. **Monitoring & Management Layer:** Handles log collection, performance monitoring, alerting, and data storage for audits and optimization.
-   - Components:
-     - *Amazon S3*: Receives and stores ALB access logs.
-     - *Amazon CloudWatch*: Collects metrics such as EC2 CPU usage, triggers alarms when CPU > 80% or when overload signs appear, and provides dashboards for real-time performance monitoring.
-     - *Amazon SNS*: Receives alerts from CloudWatch and sends notifications via email/SMS to the operations team when incidents occur.
+**4. Language and Cultural Barriers**
+- Lack of Vietnamese-language consultation
+- Does not fit Vietnamese food culture
+- Difficult to apply advice from abroad
 
-#### *Main Operation Flow*
-1. Users access the domain routed by Route 53 → redirected to ALB via HTTPS (secured by ACM).  
-2. ALB checks the request type and routes it to the appropriate backend EC2 group in the Private Subnet.  
-3. EC2 instances process the request and return the result to ALB → ALB sends the response back to the user.  
-4. During operation:  
-   - ALB sends access logs to S3.  
-   - CloudWatch monitors performance and triggers alarms when thresholds are exceeded.  
-   - SNS sends alerts to the operations team.  
-   - Auto Scaling automatically increases/decreases EC2 instances as needed.  
-5. EC2 instances in Private Subnets use NAT Gateway for Internet access (e.g., downloading updates).
+### 2.2 The Solution
 
-### 4. Technical Implementation
-#### *Implementation Phases*
-1. *Research and architecture design:* Study and design the AWS architecture.  
-2. *Cost estimation and feasibility check:* Use AWS Pricing Calculator for cost estimation and adjustments.  
-3. *Architecture optimization:* Fine-tune for cost and performance efficiency.  
-4. *Development, testing, deployment:* Implement and test the system.  
+#### NutriChat Solution
 
-#### *Technical Requirements*
-1. VPC: 1 VPC with 2 AZs (Multi-AZ).  
-2. Subnets: 2 Public Subnets, 2 Private Subnets.  
-3. Instances: Minimum 3 EC2 (Web, API, WebSocket).  
-4. Auto Scaling: Trigger when CPU > 70%.  
-5. Monitoring: CloudWatch + SNS alerts.  
-6. Logging: ALB Access Logs → S3 bucket.  
-7. Traffic Encryption: HTTPS (ACM certificate).
+**1. AI-Powered Chatbot**
 
-### 5. Timeline & Milestones
-- Internship (Month 1–3): 3 months.  
-  - Month 1: Learn and practice AWS services.  
-  - Month 2: Design architecture, estimate cost, optimize solution.  
-  - Month 3: Implement, test, and launch.
+- Uses Claude 3 Haiku - an advanced AI model
+- Instant responses, no waiting
+- Available 24/7, unlimited consultations
+- Low cost: ~$0.002/conversation
 
-### 6. Budget Estimation
-You can view the cost estimate on [AWS Pricing Calculator](https://calculator.aws/#/estimate?id=5177a11066447369fbffcd58f36842343e069f71).
+**2. Personalization Engine**
 
-#### *Infrastructure Cost*
-- Route 53: 2.25 USD/month (1 hosted zone, basic health check inside and outside AWS).  
-- S3 Standard: 0.17 USD/month (5 GB, PUT, COPY, POST, LIST 10,000 requests).  
-- ACM: 0 USD/month.  
-- VPC: 32.89 USD/month (22 working days, 1 NAT Gateway).  
-- EC2: 18.18 USD/month (Workloads monthly (Baseline: 2, Peak: 5), instance: t3.micro, pricing: on-demand).  
-- SNS: 0 USD/month (1 million requests/month).  
-- CloudWatch: 1.80 USD/month (CPU alarm, request count per target).
+- Stores detailed profile: height, weight, goals
+- Tracks food allergies
+- Considers dietary preferences (vegetarian, vegan, keto, etc.)
+- Adjusts recommendations based on physical activity level
 
-*Total*: **55.29 USD/month**
+**3. Cloud-Native Architecture**
 
-### 7. Risk Assessment
-#### *Risk Matrix*
-| Risk Type              | Level      | Impact      | Description                              |
-| ---------------------- | ---------- | ------------ | ---------------------------------------- |
-| EC2 failure            | High       | Medium       | Instance failure or connection loss       |
-| NAT Gateway failure    | Medium     | High         | Private subnet loses Internet access      |
-| ALB overload           | Medium     | High         | Application becomes unresponsive          |
-| Security misconfiguration | High   | High         | Data exposure or external attack          |
-| Budget overrun         | Medium     | Medium       | Auto Scaling scales out excessively       |
+- Deployed on AWS with high availability
+- Auto-scaling based on usage
+- Multi-AZ deployment for 99.9% uptime
+- Global CDN for fast access speed
 
-#### *Mitigation Strategies*
-- **Multi-AZ Deployment:** Distribute EC2 instances across 2 AZs to reduce downtime.  
-- **Auto Scaling Policy:** Limit the maximum number of EC2 instances.  
-- **CloudWatch Alarms:** Monitor workload and trigger instant alerts.  
-- **Security Review:** Regularly audit Security Groups, IAM policies, and logs.
+**4. Security & Privacy**
 
-#### *Contingency Plan*
-- **Budget overrun:** Trigger AWS Budgets alarms and scale down non-production resources.  
-- **Log overflow:** Move old logs to Glacier or enable automatic log deletion.  
+- AWS Cognito for authentication
+- JWT tokens with expiration
+- Encryption at rest and in transit
 
-### 8. Expected Outcomes
-#### *Technical Improvements*
-- Reduced downtime through HA, Multi-AZ, and ALB health checks.  
-- Optimized cost via Auto Scaling.  
-- Automated monitoring and alerting improve incident response time.
 
-#### *Long-term Value*
-- Easily integrates with CI/CD, advanced monitoring, and data pipelines.  
-- The architecture can be expanded into a serverless or container-based model in the future.
+
+### 2.3 Benefits and Return on Investment
+
+#### User Benefits
+
+**1. Convenience**
+- Access anytime, anywhere
+- Instant responses (< 3 seconds)
+- Save conversation history for review
+- No need to travel, saves time
+
+**2. Personalization**
+- Recommendations tailored to personal profile
+- Avoid allergenic foods
+- Match health goals
+
+**3. Privacy**
+- No need for face-to-face meetings
+- Data encrypted and secure
+
+
+#### ROI for Investors
+
+- NutriChat is currently in MVP development phase and has not implemented any paid plans for users. The product is open to the community for free use to gather feedback, evaluate usefulness, and refine the user experience. This phase helps the development team understand real needs, adjust features, and shape an appropriate business model.
+- Although there is no revenue at the current time, survey results and user feedback allow for preliminary forecasts about commercialization potential in the future.
+
+**Operating Costs (Estimated)**: $86/month (~$1,032/year) (costs may vary based on actual usage)
+
+**Revenue Model Forecast (at official launch)**:
+If the product reaches 1,000 active users after full development, the proposed pricing model could include:
+  - Freemium: 70% of users (free to attract community)
+  - Basic Plan: 25% of users, estimated ~ $5/month
+  - Premium Plan: 5% of users, estimated ~ $15/month
+
+**Long-term Business Benefits**
+- Operation Optimization: Using serverless architecture provides flexible costs based on user count, saving more than traditional fixed infrastructure.
+- Scalability: Cloud architecture allows scaling and adding advanced features without changing infrastructure.
+- Improved User Experience: Reduced downtime and faster AI responses → better user retention, increased likelihood of upgrading to paid plans.
+- Reusability: AI platform & nutrition data can expand to many new products (meal plans, coaching, nutrition insights).
+
+
+
+---
+
+## 3. SOLUTION ARCHITECTURE
+
+### 3.1 AWS Services Used
+
+#### Compute & Container
+**Amazon ECS Fargate**
+- Serverless container platform
+- Auto-scaling 1-4 tasks
+- 0.5 vCPU, 1GB RAM per task
+- Cost: $30-50/month
+
+**Application Load Balancer (ALB)**
+- Distributes traffic to ECS tasks
+- Automatic health checks
+- SSL/TLS termination
+- Cost: Included in ECS
+
+#### Storage & Database
+**Amazon RDS PostgreSQL**
+- db.t3.micro instance
+- Multi-AZ deployment
+- 20GB storage with auto-scaling
+- Automated backups (7 days retention)
+- Cost: $15-25/month
+
+**Amazon S3**
+- Static website hosting
+- Versioning enabled
+- Lifecycle policies
+- Cost: $1/month
+
+#### Networking & Content Delivery
+**Amazon CloudFront**
+- Global CDN with 200+ edge locations
+- HTTPS termination
+- Cache optimization
+- DDoS protection
+- Cost: $0 free
+
+**Amazon VPC**
+- Public subnets (2 AZs)
+- Private subnets (2 AZs)
+- Internet Gateway
+- NAT Gateway (optional)
+- Security Groups & NACLs
+- Cost: $3.25/day
+
+**VPC Endpoints**
+- Bedrock endpoint
+- Secrets Manager endpoint
+- Private connectivity
+- Cost: $7/month
+
+#### API & Authentication
+**Amazon API Gateway**
+- HTTP API (cheaper than REST API)
+- JWT Authorizer with Cognito
+- Rate limiting & throttling
+- CORS configuration
+- Cost: $3-10/month
+
+**Amazon Cognito**
+- User Pool for authentication
+- Email verification with OTP
+- Password policies
+- MFA support
+- JWT token issuance
+- Cost: Free (first 50,000 MAU)
+
+#### AI & Machine Learning
+**Amazon Bedrock**
+- Claude 3 Haiku model
+- Streaming responses
+- VPC endpoint connectivity
+- Cost: $2-10/month
+  - Input: $0.00025/1K tokens
+  - Output: $0.00125/1K tokens
+
+#### Security & Secrets
+**AWS Secrets Manager**
+- Database credentials
+- API keys
+- Automatic rotation
+- Cost: $0.40/20 secrets/month
+
+**AWS IAM**
+- Roles for ECS tasks
+- Policies with least privilege
+- Service-to-service authentication
+- Cost: Free
+
+#### Monitoring & Logging
+**Amazon CloudWatch**
+- Logs: ECS, ALB, RDS DB
+- Metrics: CPU, Memory, Latency
+- Alarms: Auto-scaling triggers
+- Dashboards: Real-time monitoring
+- Cost: $5-10/month (5GB free tier)
+
+**AWS CloudTrail**
+- API call auditing
+- Compliance logging
+- Cost: Free (management events)
+
+
+
+### 3.2 Component Design
+
+#### High-Level Architecture
+![image architech](/images/Proposal/Containerized-and-Scalable-Web-Application.drawio.png)
+
+#### Component Interactions
+
+**1. Authentication Flow**
+```
+User → CloudFront → Cognito: Sign Up/In
+Cognito → User: JWT Tokens (Access, ID, Refresh)
+User → API Gateway: Request + JWT
+API Gateway → Cognito: Verify JWT
+API Gateway → ALB → Django: Forward (if valid)
+Django → RDS: Query user data
+Django → User: Response
+```
+
+**2. Chat Flow**
+```
+User → API Gateway: POST /api/chat/ + JWT
+API Gateway → Django: Forward
+Django → RDS: Get user profile
+Django → RDS: Save user message
+Django → Bedrock: Call Claude 3 + profile context
+Bedrock → Django: Stream response (SSE)
+Django → User: Stream tokens
+Django → RDS: Save AI response
+```
+
+**3. Profile Management**
+```
+User → API Gateway: PUT /api/users/profile/ + JWT
+API Gateway → Django: Forward
+Django → RDS: Update user profile
+Django → User: Success response
+```
+
+
+
+#### Security Layers
+
+**Layer 1: API Gateway**
+- Verify JWT before request reaches backend
+- Rate limiting: 1000 requests/second
+- Throttling: 500 requests/second per user
+- CORS configuration
+
+**Layer 2: Django Backend**
+- User authorization checks
+- Input validation
+- Business logic enforcement
+- SQL injection prevention (ORM)
+
+**Layer 3: VPC Network**
+- Private subnets for backend
+- No public IPs for ECS tasks
+- Security Groups: Only allow necessary traffic
+- NACLs: Network-level firewall
+
+**Layer 4: Database**
+- RDS in private subnet
+- Encryption at rest (AES-256)
+- Encryption in transit (TLS)
+- Automated backups
+- IAM database authentication
+
+#### Data Flow
+
+**User Data Storage**
+```
+AWS Cognito User Pool
+    ↓ (cognito_sub)
+users_userprofile (RDS)
+    ↓ (cognito_sub)
+chat_conversation (RDS)
+    ↓ (conversation_id)
+chat_message (RDS)
+```
+
+**Data Encryption**
+- **At Rest**: RDS encryption, S3 encryption
+- **In Transit**: TLS 1.2+ for all connections
+- **Application**: Django password hashing (PBKDF2)
+
+
+
+---
+
+## 4. TECHNICAL IMPLEMENTATION
+
+### 4.1 Implementation Phases
+
+#### Phase 1: Research & Planning (Week 7)
+
+**Objective**: Determine what the project is about, clarify project purpose, and identify problems to solve.
+
+**Tasks**:
+- Determine what the project is about
+- Identify user base, needs, and pain points
+- Proposed solution and value delivered
+- Gather and consolidate requirements from documentation and mentors
+- Review main use cases of the application
+
+---
+
+#### Phase 2: Research & Architecture Planning (Week 8)
+
+**Objective**: Clarify project purpose, identify problems to solve, project scope, and design system architecture.
+
+**Tasks**:
+- Research appropriate cloud architecture for the product
+- Design preliminary system architecture on AWS
+- Consult with mentors
+- Update design based on feedback
+- Prepare architecture diagram
+- Draft project plan & timeline
+
+---
+
+#### Phase 3: Build FE and BE (Week 9)
+
+**Objective**: Build user interface (UI) with Vue.js and build backend API with Django
+
+**Tasks**:
+- Build web pages (Landing Page, Sign Up, Sign In, Verify Email, Forgot Password)
+- Create personal information management interface (Profile Management)
+- Build Chat interface
+- Handle error states in interface
+- Set up Django REST Framework
+- Create User Profile model
+- Build Authentication API (JWT) using Amazon Cognito
+- Build Profile management API (GET/PUT)
+- Build API to create conversations & send messages
+
+#### Phase 4: Set up Infrastructure and Deploy Application (Week 10)
+
+**Objective**: Set up AWS infrastructure with Terraform and deploy to AWS
+
+**Tasks**:
+- Write Terraform modules for VPC, subnets, security groups
+- Deploy frontend to S3 bucket
+- Create CloudFront distribution for frontend (S3 + CDN)
+- Set up AWS Cognito User Pool and App Client
+- Containerize Django backend with Docker
+- Set up ECS Fargate cluster with auto-scaling (1-4 tasks)
+- Set up API Gateway with JWT Authorizer (Cognito integration)
+- Configure Application Load Balancer
+- Configure VPC Endpoints
+- Configure CORS for API Gateway and Django
+- Set up CloudWatch Logs and Alarms
+- Test end-to-end authentication flow
+
+---
+
+#### Phase 5: AI & Database Integration (Week 11)
+
+**Objective**: Integrate AWS Bedrock (Claude 3 Haiku) for AI chat feature and set up PostgreSQL database on AWS RDS
+
+**Tasks**:
+- Set up AWS Bedrock and request model access (Claude 3 Haiku)
+- Build Bedrock client supporting streaming (SSE)
+- Integrate AI into Chat API with conversation context awareness
+- Set up PostgreSQL database on AWS RDS (Multi-AZ)
+- Create database models (UserProfile, Conversation, Message)
+- Test AI responses based on user profile
+- Optimize prompt engineering for nutrition advice
+
+---
+
+#### Phase 6: Testing and Report Writing (Week 12)
+
+**Objective**: Comprehensive testing and project documentation
+
+**Tasks**:
+- Integration testing for authentication flow
+- End-to-end testing for chat functionality
+- Load testing and stress testing
+- Cross-browser testing (Chrome, Firefox, Safari, Edge)
+- Responsive testing on mobile devices (iOS, Android)
+- Write project report
+
+
+
+
+### 4.2 Technical Deployment
+
+*Deployment Process*: The project is deployed in 6 phases over 6 weeks to build a complete AI nutrition assistant platform.
+
+- Week 7 – Research & Planning
+- Week 8 – Architecture Planning
+- Week 9 – Frontend & Backend Development
+- Week 10 – Infrastructure & Deployment
+- Week 11 – AI & Database Integration
+- Week 12 – Testing & Documentation
+
+*Technical Requirements*
+
+System deployment will follow each layer: Networking (VPC, Subnets, VPC Endpoints) → Security (Cognito, IAM, Secrets Manager) → Compute (ECS Fargate) → Load Balancing (ALB, API Gateway) → Storage & Database (S3, RDS PostgreSQL) → AI Integration (Bedrock) → Logging/Monitoring (CloudWatch) → CDN & Optimization (CloudFront).
+
+AI Nutrition Platform: Practical knowledge of CloudFront (distributing Vue.js frontend), S3 (storing static assets), API Gateway (HTTP API with JWT Authorizer), ECS Fargate (running Django backend with 1-4 task auto-scaling), RDS PostgreSQL (Multi-AZ, 20GB), Bedrock (Claude 3 Haiku for AI chat), Cognito (managing user authentication), and VPC Endpoints (6 endpoints: Bedrock, Secrets Manager, ECR, CloudWatch, S3). Use Terraform for infrastructure as code management (e.g., VPC endpoints for Bedrock, ECS task definitions, API Gateway routes). Django REST Framework handles business logic and minimizes Lambda dependencies. Vue.js + Vite for fullstack web application with real-time streaming.
+
+## 5. Project Timeline and Milestones
+
+## Project Timeline (6 Weeks)
+
+| Week | Phase                       | Main Content                                                                 |
+|------|----------------------------------|---------------------------------------------------------------------------------|
+| 7    | Research & Planning              | - Determine project objectives<br>- Identify users & pain points<br>- Gather requirements<br>- Identify main use cases |
+| 8    | Architecture Planning            | - Research AWS architecture<br>- Design system architecture<br>- Review with mentors<br>- Finalize architecture diagram<br>- Draft deployment plan |
+| 9    | FE & BE Development              | - Build UI (Landing, Sign Up, Sign In, Verify Email, Forgot Password)<br>- Profile Management UI<br>- Chat UI with error handling<br>- Set up Django REST Framework<br>- User Profile Model<br>- Auth API (Cognito + JWT)<br>- Profile API (GET/PUT)<br>- Chat & Conversation API |
+| 10   | Infrastructure & Deployment     | - Write Terraform for VPC, Subnets, Security Groups<br>- Deploy frontend S3 + CloudFront<br>- Set up Cognito User Pool<br>- Containerize backend<br>- ECS Fargate + Auto-scaling<br>- API Gateway + JWT Authorizer<br>- Configure ALB and VPC Endpoints<br>- Set up CloudWatch Logs & Alarms<br>- Test end-to-end |
+| 11   | AI & Database Integration       | - Set up AWS Bedrock & model access<br>- Bedrock client + SSE streaming<br>- Integrate AI into Chat API<br>- Context-aware conversation<br>- Set up PostgreSQL RDS (Multi-AZ)<br>- Database models & migration<br>- Test AI based on user profile<br>- Optimize prompt engineering |
+| 12   | Testing & Report                | - Integration testing<br>- End-to-end testing<br>- Load & stress testing<br>- Cross-browser testing<br>- Responsive test (iOS, Android)<br>- Write project report |
+
+
+
+---
+
+## 6. BUDGET ESTIMATION
+
+### 6.1 Infrastructure Costs
+
+#### Monthly Recurring Costs
+
+| Service | Configuration | Cost/Month | Notes |
+|---------|--------------|------------|-------|
+| **ECS Fargate** | 1-4 tasks, 0.5 vCPU, 1GB RAM | $15-30 | Auto-scaling based on load |
+| **RDS PostgreSQL** | db.t3.micro, Multi-AZ, 20GB | $15-25 | Includes automated backups |
+| **API Gateway** | HTTP API, ~1M requests | $3-10 | $1/million requests |
+| **CloudFront** | ~100GB transfer | $1-5 | First 1TB free tier |
+| **S3** | ~5GB storage, ~10K requests | $1 | Static website hosting |
+| **VPC Endpoints** | 2 endpoints (Bedrock, Secrets) | $7 | $0.01/hour per endpoint |
+| **Secrets Manager** | 2 secrets | $1 | $0.40/secret/month |
+| **CloudWatch** | Logs, Metrics, Alarms | $5-10 | 5GB free tier |
+| **Bedrock AI** | Claude 3 Haiku | $2-10 | Usage-based pricing |
+
+#### AI Usage Costs (Bedrock)
+
+| Usage Level | Messages/Day | Input Tokens | Output Tokens | Cost/Month |
+|-------------|--------------|--------------|---------------|------------|
+| **Low** | 100 | 50K | 100K | $0.40 |
+| **Medium** | 500 | 250K | 500K | $2.00 |
+| **High** | 2,000 | 1M | 2M | $8.00 |
+| **Very High** | 10,000 | 5M | 10M | $40.00 |
+
+**Pricing**:
+- Input: $0.00025 per 1K tokens
+- Output: $0.00125 per 1K tokens
+
+### 6.2 Cost Optimization Strategies
+
+#### Immediate Optimizations
+
+**1. Reserved Instances** (-30% RDS cost)
+- 1-year commitment: 30% reduction
+- 3-year commitment: 50% reduction
+- Apply when traffic is stable
+
+**2. S3 Lifecycle Policies** (-50% storage cost)
+- Move old logs to S3 Glacier after 30 days
+- Delete logs after 90 days
+- Reduce storage cost
+
+---
+
+## 7. RISK ASSESSMENT
+
+### 7.1 Risk Matrix
+
+| Risk                          | Probability | Impact | Severity | Mitigation |
+|-------------------------------|----------|-----------|---------------------|-----------------------|
+| AWS Service Outage            | Low     | High       | Medium         | Deploy Multi-AZ, setup monitoring |
+| Database Error                | Low     | High       | Medium         | RDS Multi-AZ, automated backups |
+| Security Risk                 | Low     | Very High  | High                | Multi-layer security, data encryption |
+| Budget Overrun                | Medium  | Medium     | Medium         | Setup CloudWatch billing alarms, budget limits |
+| Performance Issues            | Medium  | Medium     | Medium         | Load testing, auto-scaling |
+| Data Loss                     | Low     | Very High  | High                | Automated backups, Point-in-time Recovery |
+
+**Severity Rating Scale**
+- Low: Minor impact, easy to handle
+- Medium: Moderate impact, requires monitoring and handling
+- High: Serious impact, requires immediate action
+
+
+### 7.2 Risk Mitigation Strategies
+
+#### Technical Risks
+
+**1. AWS Service Outage**
+
+- **Mitigation**:
+  - Deploy Multi-AZ for RDS and ECS
+  - Set up CloudWatch alarms to monitor service status
+  - Enable automatic failover
+
+**2. Database Error**
+
+- **Mitigation**:
+  - Use RDS Multi-AZ with automatic failover
+  - Support Point-in-time Recovery (7 days)
+  - Snapshot database before each deployment
+
+**3. Security Risk**
+
+- **Mitigation**:
+  - Apply multi-layer security (API Gateway, Django, VPC)
+  - Encrypt data at rest and in transit
+  - Conduct regular security checks
+  - CloudTrail for audit logging
+
+**4. Performance Degradation**
+
+- **Mitigation**:
+  - Setup auto-scaling for ECS tasks (1-4 tasks)
+  - CloudWatch alarms for high CPU/memory
+  - Load testing before launch
+  - CDN caching for static assets
+  - Optimize database queries
+
+#### Business Risks
+
+**1. Budget Overrun**
+
+- **Mitigation**:
+  - Setup CloudWatch billing alarms
+  - Configure AWS Budget alerts
+  - Review costs monthly
+  - Use Reserved Instances when traffic stabilizes
+  - Regular cost analysis and optimization
+
+**2. Low User Adoption**
+
+- **Mitigation**:
+  - Launch MVP with core features
+  - Gather user feedback
+  - Continuous improvement cycles
+  - Simple marketing campaigns
+  - Free tier to attract users
+
+**3. Poor AI Quality**
+
+- **Mitigation**:
+  - Optimize prompt engineering and testing
+  - User feedback mechanism
+  - A/B testing with different prompts
+  - Manual support fallback if needed
+  - Continuous improvement
+
+### 7.3 Contingency Plans
+
+#### Plan A: Normal Operation
+
+- All services operating stably
+- Auto-scaling handling load
+- Alert system functioning properly
+
+
+#### Plan B: High Traffic
+
+**Triggered when**: > 500 concurrent users
+- Increase number of ECS tasks
+- Upgrade RDS
+- Enable strong caching on CloudFront
+
+
+#### Plan C: Service Degradation
+
+**Triggered when**: AWS service encounters issues
+- Activate Multi-AZ failover
+- Shift traffic to working AZ
+- Display system status page
+
+
+#### Plan D: Complete Outage
+
+**Triggered when**: Regional AWS outage
+- Activate disaster recovery plan
+- Restore from backups
+- Deploy to another region
+
+
+#### Plan E: Budget Overrun
+
+**Triggered when**: Cost > budget
+- Review and optimize resources
+- Reduce number of ECS tasks
+- Disable non-essential features
+- Implement strict rate limiting
+
+---
+
+## 8. EXPECTED OUTCOMES
+
+### 8.1 Technical Improvements
+
+#### Performance Metrics
+
+**Availability**
+
+- Target: 99.9% uptime (maximum 43 minutes downtime/month)
+- Multi-AZ deployment
+- Automatic failover
+- Health checks
+- Reduced response time
+
+**Scalability**
+
+- Auto-scaling: 1-4 ECS tasks
+- Support 1,000 concurrent users
+- 10,000 requests/minute
+- 100 concurrent database connections
+
+**Security**
+
+- No security incidents reported
+- 100% HTTPS traffic
+- Data encrypted at rest and in transit
+
+### 8.2 Long-term Value
+
+#### Technical Value
+
+**Reusable Infrastructure**
+
+- Terraform modules reusable for other projects
+- CI/CD pipeline templates
+- Monitoring system templates
+- Security best practices library
+
+**Knowledge Documentation**
+
+- AWS architecture patterns
+- AI integration experience
+- Performance optimization lessons
+- Cost optimization strategies
+
+**Team Skills**
+
+- AWS expertise
+- AI/ML integration in products
+- Modern web development experience
+
+#### Strategic Value
+
+**Foundation for Expansion**
+
+- Can expand to:
+  - Meal plan service
+  - Recipe marketplace
+  - Fitness tracking application
+  - Telemedicine integration
+
+
+**Data Assets**
+
+- User nutrition preferences
+- Frequently asked food questions
+- Effective meal plans
+- Market insights
+
+
+---
+
+## 9. CONCLUSION
+
+### 9.1 Summary
+
+**Technical Aspects**
+
+- Modern cloud-native architecture
+- Ensures high availability and scalability
+- Adheres to security standards
+- Ready for real-world product deployment
+
+**Business Aspects**
+
+- Reduced operational costs
+- Scalable business model
+
+**User Value**
+
+- AI-powered nutrition consultation
+- Personalized recommendations based on nutrition profile
+- Simple, easy-to-use, accessible interface
